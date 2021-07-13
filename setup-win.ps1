@@ -2,7 +2,7 @@
 Set-ExecutionPolicy -ExecutionPolicy Bypass -Force -Scope CurrentUser
 
 # Write-VerboseをOnにして詳細メッセージが表示されるようにする
-$VerbosePreference = 'Continue'
+# $VerbosePreference = 'Continue'
 
 # enabled TLS1.2
 [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bOR [Net.SecurityProtocolType]::Tls12
