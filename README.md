@@ -3,5 +3,5 @@
 ```
 Set-ExecutionPolicy -ExecutionPolicy Bypass -Force -Scope CurrentUser
 $VerbosePreference = 'SilentlyContinue'
-iwr -useb raw.githabusercontent.com/shigel/setup-win/main/setup-win.ps1 | iex
+iwr -useb raw.githubusercontent.com/shigel/setup-win-min/main/setup-win.ps1 | iex
 ```
