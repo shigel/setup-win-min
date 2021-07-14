@@ -1,5 +1,9 @@
 # setup-win-min
 
+# 手順
+
+PowerShellを「管理者として実行する」で起動する。
+
 ```
 Set-ExecutionPolicy -ExecutionPolicy Bypass -Force -Scope CurrentUser
 $VerbosePreference = 'SilentlyContinue'
