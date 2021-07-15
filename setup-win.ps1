@@ -1,49 +1,71 @@
-# Œ»İ‚Ìƒ†[ƒU[ƒAƒJƒEƒ“ƒg‚ÅPowerShell‚ğ—LŒø‚É‚µAƒ_ƒCƒAƒƒO‚ª•\¦‚³‚ê‚È‚¢‚æ‚¤‚ÉƒZƒLƒ…ƒŠƒeƒB‚ğŠÉ‚ß‚éB
+ï»¿# ç¾åœ¨ã®ãƒ¦ãƒ¼ã‚¶ãƒ¼ã‚¢ã‚«ã‚¦ãƒ³ãƒˆã§PowerShellã‚’æœ‰åŠ¹ã«ã—ã€ãƒ€ã‚¤ã‚¢ãƒ­ã‚°ãŒè¡¨ç¤ºã•ã‚Œãªã„ã‚ˆã†ã«ã‚»ã‚­ãƒ¥ãƒªãƒ†ã‚£ã‚’ç·©ã‚ã‚‹ã€‚
 # Enable PowerShell for the current user account and loosen the security so that the dialog is not displayed.
 $ExecutionPolicy = Get-ExecutionPolicy -Scope CurrentUser
 Set-ExecutionPolicy -ExecutionPolicy Bypass -Force -Scope CurrentUser
 
-# enabled TLS1.2
-[Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bOR [Net.SecurityProtocolType]::Tls12
+try {
+    # enabled TLS1.2
+    [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bOR [Net.SecurityProtocolType]::Tls12
 
-Install-PackageProvider -Force NuGet
-Install-PackageProvider -Force Chocolatey
-Install-PackageProvider -Force ChocolateyGet
+    Install-PackageProvider -Force NuGet
+    Install-PackageProvider -Force Chocolatey
+    Install-PackageProvider -Force ChocolateyGet
 
-Install-Package -Force GoogleChrome -ProviderName ChocolateyGet
+    Install-Package -Force GoogleChrome -ProviderName ChocolateyGet
 
-cd ~
-# Install Scoop
-#Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh')
-iwr -useb get.scoop.sh | iex
+    cd ~
+    # Install Scoop
+    #Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh')
+    if (!(Test-Path scoop)) {
+        iwr -useb get.scoop.sh | iex
+    }
 
-# Scoop can utilize aria2 to use multi-connection downloads. Simply install aria2 through Scoop and it will be used for all downloads afterward.
-scoop install aria2
+    # Scoop can utilize aria2 to use multi-connection downloads. Simply install aria2 through Scoop and it will be used for all downloads afterward.
+    scoop install aria2
 
-# need git for adding bucket
-scoop install git
+    # need git for adding bucket
+    scoop install git
 
-# add bucket
-scoop bucket add extras
+    # add bucket
+    scoop bucket add extras
 
-# add apps
-# Win 10 Pro is installed openssh, but Win Server 2016 is not installed openssh
-# scoop install openssh
+    # add apps
+    # Win 10 Pro is installed openssh, but Win Server 2016 is not installed openssh
+    # scoop install openssh
 
-# ssh key generates
-# Write-Verbose: Œ®‚ğì¬‚µ‚Ü‚·Bã‘‚«‚·‚éê‡‚Í(y)A‚µ‚È‚¢ê‡‚Í(n)‚ğ“ü—Í‚µ‚ÄEnter‚ğ‰Ÿ‚µ‚Ä‚­‚¾‚³‚¢B
-Write-Verbose: making ssh key. Overwrite(y), Not Overwrite(n) and input Enter key.
-mkdir ${HOME}\.ssh\
-ssh-keygen -f ${HOME}\.ssh\id_rsa -t rsa -N '""' -q
+    # ssh key generates
+    # Write-Verbose: éµã‚’ä½œæˆã—ã¾ã™ã€‚ä¸Šæ›¸ãã™ã‚‹å ´åˆã¯(y)ã€ã—ãªã„å ´åˆã¯(n)ã‚’å…¥åŠ›ã—ã¦Enterã‚’æŠ¼ã—ã¦ãã ã•ã„ã€‚
+    Write-Output "making ssh key. Overwrite(y), Not Overwrite(n) and input Enter key."
+    if (Test-Path ${HOME}\.ssh\id_rsa) {
+        Write-Output "The ssh key already exists."
+    } elseif (Test-Path ${HOME}\.ssh\) {
+        Write-Output "The ${HOME}\.ssh\ directory already exists."
+        ssh-keygen -f ${HOME}\.ssh\id_rsa -t rsa -N '""' -q
+    } else {
+        mkdir ${HOME}\.ssh\
+        ssh-keygen -f ${HOME}\.ssh\id_rsa -t rsa -N '""' -q
+    }
 
-# no dialog for ssh fingerprint
-echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
+    # no dialog for ssh fingerprint
+    Write-Output "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
 
-# ƒ†[ƒU[ƒAƒJƒEƒ“ƒg‚ÌPowerShellÀsƒ|ƒŠƒV[‚ğ•œŒ³‚·‚é
-# Restore the PowerShell execution policy for a user account.
-Set-ExecutionPolicy -ExecutionPolicy $ExecutionPolicy -Force -Scope CurrentUser
+    #Read-Host "åˆæœŸåŒ–ãŒå®Œäº†ã—ã¾ã—ãŸã€‚`nEnterã‚’æŠ¼ã™ã¨ã€å…¬é–‹éµã®å†…å®¹ãŒè¡¨ç¤ºã•ã‚Œã¾ã™ã€‚`nGithubã®Deploy Keyãªã©ã«è¨­å®šã—ã¦ãã ã•ã„ã€‚"
+    Read-Host "Initialization is complete.`nWhen you press Enter, the contents of the public key will be displayed.`nPlease set it to the Deploy Key of Github, etc."
 
-#Read-Host "‰Šúİ’è‚ªŠ®—¹‚µ‚Ü‚µ‚½B‚±‚Ì‚ ‚ÆŒöŠJŒ®‚Ì“à—e‚ª•\¦‚³‚ê‚Ü‚·B`nGithub‚È‚Ç‚ÌDeploy Key‚Éİ’è‚µ‚Ä‚­‚¾‚³‚¢B"
-Read-Host "Finished init configuration. showing public key.`nSet Deploy Key. ex) Github"
+    $message = @"
+# Congigure your git profile
+git config --global user.email "example@example.com"
+git config --global user.name "your nickname"
+"@
+    Write-Output $message
 
-cat ${HOME}\.ssh\id_rsa.pub
+    Get-Content ${HOME}\.ssh\id_rsa.pub
+
+} catch {
+    Write-Output "An error occurred:"
+    Write-Output $_.ScriptStackTrace
+} finally {
+    # ãƒ¦ãƒ¼ã‚¶ãƒ¼ã‚¢ã‚«ã‚¦ãƒ³ãƒˆã®PowerShellå®Ÿè¡Œãƒãƒªã‚·ãƒ¼ã‚’å¾©å…ƒã™ã‚‹
+    # Restore the PowerShell execution policy for a user account.
+    Set-ExecutionPolicy -ExecutionPolicy $ExecutionPolicy -Force -Scope CurrentUser
+}
