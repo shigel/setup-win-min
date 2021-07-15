@@ -3,9 +3,6 @@
 $ExecutionPolicy = Get-ExecutionPolicy -Scope CurrentUser
 Set-ExecutionPolicy -ExecutionPolicy Bypass -Force -Scope CurrentUser
 
-# Write-VerboseをOnにして詳細メッセージが表示されるようにする
-# $VerbosePreference = 'Continue'
-
 # enabled TLS1.2
 [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bOR [Net.SecurityProtocolType]::Tls12
 
@@ -42,9 +39,6 @@ ssh-keygen -f ${HOME}\.ssh\id_rsa -t rsa -N '""' -q
 # ユーザーアカウントのPowerShell実行ポリシーを復元する
 # Restore the PowerShell execution policy for a user account.
 Set-ExecutionPolicy -ExecutionPolicy $ExecutionPolicy -Force -Scope CurrentUser
-
-# # Write-VerboseをOffにして詳細メッセージが非表示にする
-# $VerbosePreference = 'SilentlyContinue'
 
 #Read-Host "初期設定が完了しました。このあと公開鍵の内容が表示されます。`nGithubなどのDeploy Keyに設定してください。"
 Read-Host "Finished init configuration. showing public key.`nSet Deploy Key. ex) Github"
