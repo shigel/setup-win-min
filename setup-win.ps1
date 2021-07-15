@@ -1,4 +1,6 @@
-# ユーザーアカウントでPowerShellを有効にし、ダイアログが出ないようにセキュリティを緩める
+# 現在のユーザーアカウントでPowerShellを有効にし、ダイアログが表示されないようにセキュリティを緩める。
+# Enable PowerShell for the current user account and loosen the security so that the dialog is not displayed.
+$ExecutionPolicy = Get-ExecutionPolicy -Scope CurrentUser
 Set-ExecutionPolicy -ExecutionPolicy Bypass -Force -Scope CurrentUser
 
 # Write-VerboseをOnにして詳細メッセージが表示されるようにする
@@ -37,8 +39,9 @@ Write-Verbose: making ssh key. Overwrite(y), Not Overwrite(n) and input Enter ke
 mkdir ${HOME}\.ssh\
 ssh-keygen -f ${HOME}\.ssh\id_rsa -t rsa -N '""' -q
 
-# ユーザーアカウントでPowerShellを無効にし、セキュリティ設定を安全なものに設定する
-Set-ExecutionPolicy -ExecutionPolicy Restricted -Force -Scope CurrentUser
+# ユーザーアカウントのPowerShell実行ポリシーを復元する
+# Restore the PowerShell execution policy for a user account.
+Set-ExecutionPolicy -ExecutionPolicy $ExecutionPolicy -Force -Scope CurrentUser
 
 # # Write-VerboseをOffにして詳細メッセージが非表示にする
 # $VerbosePreference = 'SilentlyContinue'
