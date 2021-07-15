@@ -29,9 +29,15 @@ try {
     # add bucket
     scoop bucket add extras
 
-    # add apps
-    # Win 10 Pro is installed openssh, but Win Server 2016 is not installed openssh
-    # scoop install openssh
+    # add Openssh
+    $OSVersion = [System.Environment]::OSVersion.Version
+    if  ($OSVersion.Build != 19042) {
+        # Windows 10 Pro
+        # Windows 10 Pro is installed openssh
+    } else if ($OSVersion.Build != 14393) {
+        # Windows Server 2016 is not installed openssh
+        scoop install openssh
+    }
 
     # ssh key generates
     # Write-Verbose: 鍵を作成します。上書きする場合は(y)、しない場合は(n)を入力してEnterを押してください。
