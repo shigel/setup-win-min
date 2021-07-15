@@ -55,12 +55,18 @@ try {
     $writer.Close()
 
     #Read-Host "初期化が完了しました。`r`nEnterを押すと、公開鍵の内容が表示されます。`r`nGithubのDeploy Keyなどに設定してください。"
-    Read-Host "Initialization is complete.`r`nWhen you press Enter, the contents of the public key will be displayed.`r`nPlease set it to the Deploy Key of Github, etc."
+    $message = @"
+Initialization is complete.
+When you press Enter, the contents of the public key will be displayed.
+Please set it to the Deploy Key of Github, etc.
+"@
+    Read-Host $message
 
     $message = @"
 # Congigure your git profile
 git config --global user.email "example@example.com"
 git config --global user.name "your nickname"
+--------------------------------
 "@
     Write-Output $message
 
