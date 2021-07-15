@@ -47,10 +47,15 @@ try {
     }
 
     # no dialog for ssh fingerprint
-    Write-Output "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
+    $writer = New-Object System.IO.StreamWriter(
+        "${HOME}\.ssh\config", 
+        $true,
+        (New-Object System.Text.UTF8Encoding($false)))
+    $writer.WriteLine("Host github.com`r`n`tStrictHostKeyChecking no`r`n")
+    $writer.Close()
 
-    #Read-Host "初期化が完了しました。`nEnterを押すと、公開鍵の内容が表示されます。`nGithubのDeploy Keyなどに設定してください。"
-    Read-Host "Initialization is complete.`nWhen you press Enter, the contents of the public key will be displayed.`nPlease set it to the Deploy Key of Github, etc."
+    #Read-Host "初期化が完了しました。`r`nEnterを押すと、公開鍵の内容が表示されます。`r`nGithubのDeploy Keyなどに設定してください。"
+    Read-Host "Initialization is complete.`r`nWhen you press Enter, the contents of the public key will be displayed.`r`nPlease set it to the Deploy Key of Github, etc."
 
     $message = @"
 # Congigure your git profile
