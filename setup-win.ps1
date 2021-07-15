@@ -46,7 +46,7 @@ Set-ExecutionPolicy -ExecutionPolicy $ExecutionPolicy -Force -Scope CurrentUser
 # # Write-VerboseをOffにして詳細メッセージが非表示にする
 # $VerbosePreference = 'SilentlyContinue'
 
-#Read-Host "初期設定が完了しました。このあと公開鍵の内容が表示されます。\nGithubなどのDeploy Keyに設定してください。"
-Read-Host "Finished init configuration. showing public key\n Set Deploy Key. ex) Github"
+#Read-Host "初期設定が完了しました。このあと公開鍵の内容が表示されます。`nGithubなどのDeploy Keyに設定してください。"
+Read-Host "Finished init configuration. showing public key.`nSet Deploy Key. ex) Github"
 
 cat ${HOME}\.ssh\id_rsa.pub
