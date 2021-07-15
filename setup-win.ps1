@@ -30,11 +30,14 @@ scoop bucket add extras
 # Win 10 Pro is installed openssh, but Win Server 2016 is not installed openssh
 # scoop install openssh
 
-# ssh鍵作成
+# ssh key generates
 # Write-Verbose: 鍵を作成します。上書きする場合は(y)、しない場合は(n)を入力してEnterを押してください。
 Write-Verbose: making ssh key. Overwrite(y), Not Overwrite(n) and input Enter key.
 mkdir ${HOME}\.ssh\
 ssh-keygen -f ${HOME}\.ssh\id_rsa -t rsa -N '""' -q
+
+# no dialog for ssh fingerprint
+echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
 
 # ユーザーアカウントのPowerShell実行ポリシーを復元する
 # Restore the PowerShell execution policy for a user account.
