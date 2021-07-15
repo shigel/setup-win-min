@@ -1,10 +1,21 @@
 # setup-win-min
 
-# 手順
+## 概要
 
-PowerShellを「管理者として実行する」で起動する。
+PowerShellから自動で環境構築できるよう、最低限の設定を行う。
 
-```
+## 環境
+
+- OS
+    - Windows 10 Pro
+    - Windows Server 2016
+
+## 手順
+
+Launch Power Shell from the context menu "Run as administrator" and execute the following command.
+コンテキストメニュー「管理者として実行」からPower Shellを起動し、下記コマンドを実行します。
+
+```:powershell
 Set-ExecutionPolicy -ExecutionPolicy Bypass -Force -Scope CurrentUser
 $VerbosePreference = 'SilentlyContinue'
 [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bOR [Net.SecurityProtocolType]::Tls12
