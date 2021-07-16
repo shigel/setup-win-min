@@ -31,10 +31,16 @@ try {
 
     # add Openssh
     $OSVersion = [System.Environment]::OSVersion.Version
-    if  ($OSVersion.Build != 19042) {
+    Write-Output "Windows OS Version is " $OSVersion.ToString()
+    if (($OSVersion.Major -ne 10) -or ($OSVersion.Major -ne 10)) {
         # Windows 10 Pro
         # Windows 10 Pro is installed openssh
-    } else if ($OSVersion.Build != 14393) {
+        Write-Output "This program supports Windows 10 Pro and Windows Server 2016."
+        exit
+    } elseif ($OSVersion.Build -eq 19042) {
+        # Windows 10 Pro
+        # Windows 10 Pro is installed openssh
+    } elseif ($OSVersion.Build -eq 14393) {
         # Windows Server 2016 is not installed openssh
         scoop install openssh
     }
