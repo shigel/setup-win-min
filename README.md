@@ -4,6 +4,14 @@
 
 PowerShellから自動で環境構築できるよう、最低限の設定を行う。
 
+### 設定する内容
+
+- PowerShell初期設定
+- PackageManagement初期設定
+- Scoopインストール、初期設定
+- sshインストール、初期設定
+    - ※最後に公開鍵を表示します
+
 ## 環境
 
 - OS
