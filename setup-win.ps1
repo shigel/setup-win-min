@@ -1,4 +1,5 @@
-﻿# Enable PowerShell for the current user account and loosen the security so that the dialog is not displayed.
+# 現在のユーザーアカウントでPowerShellを有効にし、ダイアログが表示されないようにセキュリティを緩める。
+# Enable PowerShell for the current user account and loosen the security so that the dialog is not displayed.
 $ExecutionPolicy = Get-ExecutionPolicy -Scope CurrentUser
 Set-ExecutionPolicy -ExecutionPolicy Bypass -Force -Scope CurrentUser
 
