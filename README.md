@@ -7,8 +7,8 @@ PowerShellから自動で環境構築できるよう、最低限の設定を行�
 ## 環境
 
 - OS
-    - Windows 10 Pro
-    - Windows Server 2016
+  - Windows 10 Pro
+  - Windows Server 2016
 
 ## 手順
 

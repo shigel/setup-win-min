@@ -3,6 +3,9 @@
 $ExecutionPolicy = Get-ExecutionPolicy -Scope CurrentUser
 Set-ExecutionPolicy -ExecutionPolicy Bypass -Force -Scope CurrentUser
 
+# Invoke-WebRequestの速度改善
+$ProgressPreference = 'SilentlyContinue'
+
 try {
     # enabled TLS1.2
     [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bOR [Net.SecurityProtocolType]::Tls12
