@@ -1,7 +1,7 @@
 # 現在のユーザーアカウントでPowerShellを有効にし、ダイアログが表示されないようにセキュリティを緩める。
 # Enable PowerShell for the current user account and loosen the security so that the dialog is not displayed.
-$ExecutionPolicy = Get-ExecutionPolicy -Scope CurrentUser
-Set-ExecutionPolicy -ExecutionPolicy Bypass -Force -Scope CurrentUser
+$ExecutionPolicy = Get-ExecutionPolicy -Scope Process
+Set-ExecutionPolicy -ExecutionPolicy Bypass -Force -Scope Process
 
 # Invoke-WebRequestの速度改善
 $ProgressPreference = 'SilentlyContinue'
@@ -93,5 +93,5 @@ git config --global user.name "your nickname"
 } finally {
     # ユーザーアカウントのPowerShell実行ポリシーを復元する
     # Restore the PowerShell execution policy for a user account.
-    Set-ExecutionPolicy -ExecutionPolicy $ExecutionPolicy -Force -Scope CurrentUser
+    Set-ExecutionPolicy -ExecutionPolicy $ExecutionPolicy -Force -Scope Process
 }
