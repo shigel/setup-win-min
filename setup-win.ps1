@@ -13,7 +13,7 @@ try {
 
     Install-Package -Force GoogleChrome -ProviderName ChocolateyGet
 
-    cd ~
+    cd ${HOME}
     # Install Scoop
     #Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh')
     if (!(Test-Path scoop)) {
