@@ -6,7 +6,114 @@ Set-ExecutionPolicy -ExecutionPolicy Bypass -Force -Scope Process
 # Invoke-WebRequestの速度改善
 $ProgressPreference = 'SilentlyContinue'
 
-try {
+function Send-Slack{
+    param(
+        [Parameter(Mandatory,Position=1)]
+        [string]$message,
+
+        [Parameter(Mandatory,Position=2)]
+        [string]$webhookUrl,
+
+        [Parameter(Position=3)]
+        [string]$mentionSubteamId
+    )
+
+    if([string]::IsNullOrEmpty($mentionSubteamId)) {
+        $mentionSubteamId = "<!here>"
+    } else {
+        $mentionSubteamId = "<!subteam^$mentionSubteamId>"
+    }
+
+    # 日本語エンコード用
+    $encode = [System.Text.Encoding]::GetEncoding('ISO-8859-1')
+    $utf8Bytes = [System.Text.Encoding]::UTF8.GetBytes($mentionSubteamId + $message)
+
+    # Jsonに変換する
+    $payload = @{ 
+        text = $encode.GetString($utf8Bytes);
+
+        # SlackのWebHookでBOT名とアイコンを指定している場合は下記スクリプトは不要
+        #username = "PowerShell BOT";
+        #icon_url = "https://xxxx/xxx.png";
+    }
+
+    if([string]::IsNullOrEmpty($slackWebhookUrl)) {
+        Write-Output $message
+    } else {
+        # SlackのREST APIをたたく
+        Invoke-RestMethod -Uri $webhookUrl -Method Post -Body (ConvertTo-Json $payload)
+    }
+}
+
+#####################################################################
+# システム情報
+#####################################################################
+function GetWindowsInfo {
+    $WindowsInfo = New-Object PSObject `
+        | Select-Object HostName,GlobalIP,UserName,Manufacturer,Model,SerialNumber,CPUName,PhysicalCores,Sockets,MemorySize,DiskInfos,OS
+
+    $Win32_BIOS = Get-WmiObject Win32_BIOS
+    $Win32_Processor = Get-WmiObject Win32_Processor
+    $Win32_ComputerSystem = Get-WmiObject Win32_ComputerSystem
+    $Win32_OperatingSystem = Get-WmiObject Win32_OperatingSystem
+
+    # ホスト名
+    $WindowsInfo.HostName = hostname
+
+    # グローバルIPアドレス
+    $json = (Invoke-WebRequest -Uri "ipinfo.io" -UseBasicParsing).Content
+    $WindowsInfo.GlobalIP = (ConvertFrom-Json $json).ip
+
+    # ユーザ名
+    $WindowsInfo.UserName = $env:UserName
+
+    # メーカー名
+    $WindowsInfo.Manufacturer = $Win32_BIOS.Manufacturer
+
+    # モデル名
+    $WindowsInfo.Model = $Win32_ComputerSystem.Model
+
+    # シリアル番号
+    $WindowsInfo.SerialNumber = $Win32_BIOS.SerialNumber
+
+    # CPU 名
+    $WindowsInfo.CPUName = @($Win32_Processor.Name)[0]
+
+    # 物理コア数
+    $PhysicalCores = 0
+    $Win32_Processor.NumberOfCores | % { $PhysicalCores += $_}
+    $WindowsInfo.PhysicalCores = $PhysicalCores
+    
+    # ソケット数
+    $WindowsInfo.Sockets = $Win32_ComputerSystem.NumberOfProcessors
+    
+    # メモリーサイズ(GB)
+    $Total = 0
+    Get-WmiObject -Class Win32_PhysicalMemory | % {$Total += $_.Capacity}
+    $WindowsInfo.MemorySize = [int]($Total/1GB)
+    
+    # ディスク情報
+    [array]$DiskDrives = Get-WmiObject Win32_DiskDrive | ? {$_.Caption -notmatch "Msft"} | sort Index
+    $DiskInfos = @()
+    foreach( $DiskDrive in $DiskDrives ){
+        $DiskInfo = New-Object PSObject | Select-Object Index, DiskSize
+        $DiskInfo.Index = $DiskDrive.Index              # ディスク番号
+        $DiskInfo.DiskSize = [int]($DiskDrive.Size/1GB) # ディスクサイズ(GB)
+        $DiskInfos += $DiskInfo
+    }
+    $WindowsInfo.DiskInfos = $DiskInfos
+    
+    # OS 
+    $OS = $Win32_OperatingSystem.Caption
+    $SP = $Win32_OperatingSystem.ServicePackMajorVersion
+    if( $SP -ne 0 ){ $OS += "SP" + $SP }
+    $WindowsInfo.OS = $OS
+    
+    return $WindowsInfo
+}
+
+function main {
+    Set-ExecutionPolicy -ExecutionPolicy Bypass -Force -Scope CurrentUser
     # enabled TLS1.2
     [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bOR [Net.SecurityProtocolType]::Tls12
 
@@ -69,27 +176,64 @@ try {
     $writer.WriteLine("Host github.com`r`n`tStrictHostKeyChecking no`r`n")
     $writer.Close()
 
-    #Read-Host "初期化が完了しました。`r`nEnterを押すと、公開鍵の内容が表示されます。`r`nGithubのDeploy Keyなどに設定してください。"
-    $message = @"
-Initialization is complete.
-When you press Enter, the contents of the public key will be displayed.
-Please set it to the Deploy Key of Github, etc.
+    # Restore the PowerShell execution policy for a user account.
+    # Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Force -Scope CurrentUser
+    # Write-Output "ExecutionPolicyは${ExecutionPolicy}からRemoteSignedに変更されました。"
+    Set-ExecutionPolicy -ExecutionPolicy $ExecutionPolicy -Force -Scope Process
+}
+
+try {
+    main 
+
+    Write-Output "### Initialize is finished. ###"
+    $publicKey = Get-Content ${HOME}\.ssh\id_rsa.pub
+    $WindowsInfo = (GetWindowsInfo | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty Definition) -join "`r`n"
+    
+$message = @"
+$slackMention
+*Initialization is complete. (assetTag:$assetTag)*
+-------------------------------
+Please set the public key to the Deploy Key of Github, etc.
+### publicKey:
+``````
+$publicKey
+``````
+### Windows Infomation
+``````
+$WindowsInfo
+``````
 "@
-    Read-Host $message
 
-    $message = @"
-# Congigure your git profile
-git config --global user.email "example@example.com"
-git config --global user.name "your nickname"
---------------------------------
-"@
-    Write-Output $message
-
-    Get-Content ${HOME}\.ssh\id_rsa.pub
-
+    if([string]::IsNullOrEmpty($slackWebhookUrl)) {
+        Write-Output $message
+    } else {
+        Send-Slack $message $slackWebhookUrl $slackMentionSubteamId
+    }
+    
 } catch {
-    Write-Output "An error occurred:"
-    Write-Output $_.ScriptStackTrace
+    $WindowsInfo = (GetWindowsInfo | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty Definition) -join "`r`n"
+    
+    # $message = "`<!here>`nAn error occurred: `n*assetTag: $assetTag*`n``````" + $_.ScriptStackTrace.toString() + "`n```````n``````$WindowsInfo``````"
+    $scriptStackTrace = $_.ScriptStackTrace.toString()
+    $message = @"
+$slackMention
+*An error occurred! (assetTag:$assetTag)*
+-------------------------------
+### Script Stack Trace:
+``````
+$scriptStackTrace
+``````
+### Windows Infomation
+``````
+$WindowsInfo
+``````
+"@
+
+    if([string]::IsNullOrEmpty($slackWebhookUrl)) {
+        Write-Output $message
+    } else {
+        Send-Slack $message $slackWebhookUrl $slackMentionSubteamId
+    }
 } finally {
     # ユーザーアカウントのPowerShell実行ポリシーを復元する
     # Restore the PowerShell execution policy for a user account.
