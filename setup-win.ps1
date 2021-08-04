@@ -1,9 +1,9 @@
-# ç¾åœ¨ã®ãƒ¦ãƒ¼ã‚¶ãƒ¼ã‚¢ã‚«ã‚¦ãƒ³ãƒˆã§PowerShellã‚’æœ‰åŠ¹ã«ã—ã€ãƒ€ã‚¤ã‚¢ãƒ­ã‚°ãŒè¡¨ç¤ºã•ã‚Œãªã„ã‚ˆã†ã«ã‚»ã‚­ãƒ¥ãƒªãƒ†ã‚£ã‚’ç·©ã‚ã‚‹ã€‚
+# Œ»İ‚Ìƒ†[ƒU[ƒAƒJƒEƒ“ƒg‚ÅPowerShell‚ğ—LŒø‚É‚µAƒ_ƒCƒAƒƒO‚ª•\¦‚³‚ê‚È‚¢‚æ‚¤‚ÉƒZƒLƒ…ƒŠƒeƒB‚ğŠÉ‚ß‚éB
 # Enable PowerShell for the current user account and loosen the security so that the dialog is not displayed.
 $ExecutionPolicy = Get-ExecutionPolicy -Scope Process
 Set-ExecutionPolicy -ExecutionPolicy Bypass -Force -Scope Process
 
-# Invoke-WebRequestã®é€Ÿåº¦æ”¹å–„
+# Invoke-WebRequest‚Ì‘¬“x‰ü‘P
 $ProgressPreference = 'SilentlyContinue'
 
 try {
@@ -49,7 +49,7 @@ try {
     }
 
     # ssh key generates
-    # Write-Verbose: éµã‚’ä½œæˆã—ã¾ã™ã€‚ä¸Šæ›¸ãã™ã‚‹å ´åˆã¯(y)ã€ã—ãªã„å ´åˆã¯(n)ã‚’å…¥åŠ›ã—ã¦Enterã‚’æŠ¼ã—ã¦ãã ã•ã„ã€‚
+    # Write-Verbose: Œ®‚ğì¬‚µ‚Ü‚·Bã‘‚«‚·‚éê‡‚Í(y)A‚µ‚È‚¢ê‡‚Í(n)‚ğ“ü—Í‚µ‚ÄEnter‚ğ‰Ÿ‚µ‚Ä‚­‚¾‚³‚¢B
     Write-Output "making ssh key. Overwrite(y), Not Overwrite(n) and input Enter key."
     if (Test-Path ${HOME}\.ssh\id_rsa) {
         Write-Output "The ssh key already exists."
@@ -69,7 +69,7 @@ try {
     $writer.WriteLine("Host github.com`r`n`tStrictHostKeyChecking no`r`n")
     $writer.Close()
 
-    #Read-Host "åˆæœŸåŒ–ãŒå®Œäº†ã—ã¾ã—ãŸã€‚`r`nEnterã‚’æŠ¼ã™ã¨ã€å…¬é–‹éµã®å†…å®¹ãŒè¡¨ç¤ºã•ã‚Œã¾ã™ã€‚`r`nGithubã®Deploy Keyãªã©ã«è¨­å®šã—ã¦ãã ã•ã„ã€‚"
+    #Read-Host "‰Šú‰»‚ªŠ®—¹‚µ‚Ü‚µ‚½B`r`nEnter‚ğ‰Ÿ‚·‚ÆAŒöŠJŒ®‚Ì“à—e‚ª•\¦‚³‚ê‚Ü‚·B`r`nGithub‚ÌDeploy Key‚È‚Ç‚Éİ’è‚µ‚Ä‚­‚¾‚³‚¢B"
     $message = @"
 Initialization is complete.
 When you press Enter, the contents of the public key will be displayed.
@@ -91,7 +91,7 @@ git config --global user.name "your nickname"
     Write-Output "An error occurred:"
     Write-Output $_.ScriptStackTrace
 } finally {
-    # ãƒ¦ãƒ¼ã‚¶ãƒ¼ã‚¢ã‚«ã‚¦ãƒ³ãƒˆã®PowerShellå®Ÿè¡Œãƒãƒªã‚·ãƒ¼ã‚’å¾©å…ƒã™ã‚‹
+    # ƒ†[ƒU[ƒAƒJƒEƒ“ƒg‚ÌPowerShellÀsƒ|ƒŠƒV[‚ğ•œŒ³‚·‚é
     # Restore the PowerShell execution policy for a user account.
     Set-ExecutionPolicy -ExecutionPolicy $ExecutionPolicy -Force -Scope Process
 }
