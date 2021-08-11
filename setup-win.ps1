@@ -9,7 +9,7 @@ $ProgressPreference = 'SilentlyContinue'
 function Send-Slack{
     param(
         [Parameter(Mandatory,Position=1)]
-        [string]$message,
+        [string]$slackMessage,
 
         [Parameter(Mandatory,Position=2)]
         [string]$webhookUrl,
@@ -26,7 +26,7 @@ function Send-Slack{
 
     # 日本語エンコード用
     $encode = [System.Text.Encoding]::GetEncoding('ISO-8859-1')
-    $utf8Bytes = [System.Text.Encoding]::UTF8.GetBytes($mentionSubteamId + $message)
+    $utf8Bytes = [System.Text.Encoding]::UTF8.GetBytes($mentionSubteamId + $slackMessage)
 
     # Jsonに変換する
     $payload = @{ 
@@ -38,7 +38,7 @@ function Send-Slack{
     }
 
     if([string]::IsNullOrEmpty($slackWebhookUrl)) {
-        Write-Output $message
+        Write-Output $slackMessage
     } else {
         # SlackのREST APIをたたく
         Invoke-RestMethod -Uri $webhookUrl -Method Post -Body (ConvertTo-Json $payload)
@@ -189,33 +189,33 @@ try {
     $publicKey = Get-Content ${HOME}\.ssh\id_rsa.pub
     $WindowsInfo = (GetWindowsInfo | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty Definition) -join "`r`n"
     
-$message = @"
+    $slackMessage = @"
 $slackMention
 *Initialization is complete. (assetTag:$assetTag)*
 -------------------------------
 Please set the public key to the Deploy Key of Github, etc.
-### publicKey:
+### Public Key:
 ``````
 $publicKey
 ``````
-### Windows Infomation
+### Windows Infomation:
 ``````
 $WindowsInfo
 ``````
 "@
 
     if([string]::IsNullOrEmpty($slackWebhookUrl)) {
-        Write-Output $message
+        Write-Output $slackMessage
     } else {
-        Send-Slack $message $slackWebhookUrl $slackMentionSubteamId
+        Send-Slack $slackMessage $slackWebhookUrl $slackMentionSubteamId
     }
     
 } catch {
     $WindowsInfo = (GetWindowsInfo | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty Definition) -join "`r`n"
     
-    # $message = "`<!here>`nAn error occurred: `n*assetTag: $assetTag*`n``````" + $_.ScriptStackTrace.toString() + "`n```````n``````$WindowsInfo``````"
+    # $slackMessage = "`<!here>`nAn error occurred: `n*assetTag: $assetTag*`n``````" + $_.ScriptStackTrace.toString() + "`n```````n``````$WindowsInfo``````"
     $scriptStackTrace = $_.ScriptStackTrace.toString()
-    $message = @"
+    $slackMessage = @"
 $slackMention
 *An error occurred! (assetTag:$assetTag)*
 -------------------------------
@@ -230,9 +230,9 @@ $WindowsInfo
 "@
 
     if([string]::IsNullOrEmpty($slackWebhookUrl)) {
-        Write-Output $message
+        Write-Output $slackMessage
     } else {
-        Send-Slack $message $slackWebhookUrl $slackMentionSubteamId
+        Send-Slack $slackMessage $slackWebhookUrl $slackMentionSubteamId
     }
 } finally {
     # ユーザーアカウントのPowerShell実行ポリシーを復元する
