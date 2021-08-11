@@ -6,6 +6,9 @@ Set-ExecutionPolicy -ExecutionPolicy Bypass -Force -Scope Process
 # Invoke-WebRequest‚Ì‘¬“x‰ü‘P
 $ProgressPreference = 'SilentlyContinue'
 
+$WindowsInfo = $null
+$WindowsInfoString = ""
+
 function Send-Slack{
     param(
         [Parameter(Mandatory,Position=1)]
@@ -112,6 +115,59 @@ function GetWindowsInfo {
     return $WindowsInfo
 }
 
+
+function PostHardwareSnipeIt {
+    param(
+        [Parameter(Mandatory,Position=1)]
+        [string]$snipeItRootUrl,
+
+        [Parameter(Mandatory,Position=2)]
+        [string]$snipeItApiKey,
+
+        [Parameter(Mandatory,Position=3)]
+        [int]$modelId,
+
+        [Parameter(Position=4)]
+        [string]$assetName,
+
+        [Parameter(Mandatory,Position=5)]
+        [string]$assetTag,
+
+        [Parameter(Mandatory,Position=6)]
+        [string]$serialNumber,
+
+        [parameter(mandatory = $false)]
+        [string]$notes
+    )
+
+    $statusId = 2     # Ready to Deploy
+    # To use each session:
+    Set-SnipeitInfo -URL $snipeItRootUrl -apiKey $snipeItApiKey
+
+    $snipeitMessages = New-Object System.Collections.ArrayList
+
+    $assets1 = Get-SnipeitAsset -serial $serialNumber
+    $asset2 = Get-SnipeitAsset -asset_tag $assetTag
+    if ($assets1.length -ne 0) {
+        foreach ($asset in $assets1) {
+            if ($null -eq $asset.deleted_at) {
+                $snipeitMessages.Add("Serial Number '$serialNumber' is Duplicated. $snipeItRootUrl/hardware/" + $asset.id)
+            }
+        }
+    }
+    if (($asset2.length -ne 0) -and ($null -eq $asset2.deleted_at)) {
+        $snipeitMessages.Add("Asset Tag '$assetTag' is Duplicated. $snipeItRootUrl/hardware/" + $asset2.id)
+    }
+    if ($snipeitMessages.count -eq 0) {
+
+        $new_asset =
+            New-SnipeitAsset $statusId $modelId $assetName -asset_tag $assetTag -serial $serialNumber -notes "$notes"
+        $snipeitMessages.Add(
+            "Asset Tag '" + $new_asset.asset_tag +"' is created. $snipeItRootUrl/hardware/" + $new_asset.id)
+    }
+
+    return $snipeitMessages
+}
 function main {
     Set-ExecutionPolicy -ExecutionPolicy Bypass -Force -Scope CurrentUser
     # enabled TLS1.2
@@ -182,8 +238,6 @@ function main {
     Set-ExecutionPolicy -ExecutionPolicy $ExecutionPolicy -Force -Scope Process
 }
 
-$WindowsInfo = $null
-$WindowsInfoString = ""
 try {
     main 
 
@@ -209,6 +263,19 @@ $WindowsInfoString
 ``````
 "@
 
+    if ([string]::IsNullOrEmpty($snipeItRootUrl) -or [string]::IsNullOrEmpty($snipeItApiKey)) {
+        # nothing to do
+    } else {
+        $snipeitMessages = (PostHardwareSnipeIt $snipeItRootUrl $snipeItApiKey $modelId $assetName $assetTag $serialNumber -notes "$WindowsInfoString") -join "`r`n"
+
+        $slackMessage += @"
+### Snipe-IT Infomation:
+``````
+$snipeitMessages
+``````
+"@
+    }
+    
     if([string]::IsNullOrEmpty($slackWebhookUrl)) {
         Write-Output $slackMessage
     } else {
