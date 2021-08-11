@@ -182,12 +182,17 @@ function main {
     Set-ExecutionPolicy -ExecutionPolicy $ExecutionPolicy -Force -Scope Process
 }
 
+$WindowsInfo = $null
+$WindowsInfoString = ""
 try {
     main 
 
     Write-Output "### Initialize is finished. ###"
     $publicKey = Get-Content ${HOME}\.ssh\id_rsa.pub
-    $WindowsInfo = (GetWindowsInfo | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty Definition) -join "`r`n"
+
+    $WindowsInfo = GetWindowsInfo
+    $serialNumber = $WindowsInfo.SerialNumber
+    $WindowsInfoString = ($WindowsInfo | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty Definition) -join "`r`n"
     
     $slackMessage = @"
 $slackMention
@@ -200,7 +205,7 @@ $publicKey
 ``````
 ### Windows Infomation:
 ``````
-$WindowsInfo
+$WindowsInfoString
 ``````
 "@
 
@@ -211,9 +216,6 @@ $WindowsInfo
     }
     
 } catch {
-    $WindowsInfo = (GetWindowsInfo | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty Definition) -join "`r`n"
-    
-    # $slackMessage = "`<!here>`nAn error occurred: `n*assetTag: $assetTag*`n``````" + $_.ScriptStackTrace.toString() + "`n```````n``````$WindowsInfo``````"
     $scriptStackTrace = $_.ScriptStackTrace.toString()
     $slackMessage = @"
 $slackMention
@@ -225,7 +227,7 @@ $scriptStackTrace
 ``````
 ### Windows Infomation
 ``````
-$WindowsInfo
+$WindowsInfoString
 ``````
 "@
 
