@@ -235,19 +235,19 @@ function Setup {
     Set-ExecutionPolicy -ExecutionPolicy $ExecutionPolicy -Force -Scope Process
 }
 
-function main {
+function Setup-Windows {
 
-try {
-    Setup 
+    try {
+        Setup 
 
-    Write-Output "### Initialize is finished. ###"
-    $publicKey = Get-Content ${HOME}\.ssh\id_rsa.pub
+        Write-Output "### Initialize is finished. ###"
+        $publicKey = Get-Content ${HOME}\.ssh\id_rsa.pub
 
-    $WindowsInfo = GetWindowsInfo
-    $serialNumber = $WindowsInfo.SerialNumber
-    $WindowsInfoString = ($WindowsInfo | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty Definition) -join "`r`n"
-    
-    $slackMessage = @"
+        $WindowsInfo = GetWindowsInfo
+        $serialNumber = $WindowsInfo.SerialNumber
+        $WindowsInfoString = ($WindowsInfo | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty Definition) -join "`r`n"
+        
+        $slackMessage = @"
 $slackMention
 *Initialization is complete. (assetTag:$assetTag)*
 -------------------------------
@@ -262,28 +262,28 @@ $WindowsInfoString
 ``````
 "@
 
-    if ([string]::IsNullOrEmpty($snipeItRootUrl) -or [string]::IsNullOrEmpty($snipeItApiKey)) {
-        # nothing to do
-    } else {
-        $snipeitMessages = (PostHardwareSnipeIt $snipeItRootUrl $snipeItApiKey $modelId $assetName $assetTag $serialNumber -notes "$WindowsInfoString") -join "`r`n"
+        if ([string]::IsNullOrEmpty($snipeItRootUrl) -or [string]::IsNullOrEmpty($snipeItApiKey)) {
+            # nothing to do
+        } else {
+            $snipeitMessages = (PostHardwareSnipeIt $snipeItRootUrl $snipeItApiKey $modelId "$assetName" $assetTag $serialNumber -notes "$WindowsInfoString") -join "`r`n"
 
-        $slackMessage += @"
+            $slackMessage += @"
 ### Snipe-IT Infomation:
 ``````
 $snipeitMessages
 ``````
 "@
-    }
-    
-    if([string]::IsNullOrEmpty($slackWebhookUrl)) {
-        Write-Output $slackMessage
-    } else {
-        Send-Slack $slackMessage $slackWebhookUrl $slackMentionSubteamId
-    }
-    
-} catch {
-    $scriptStackTrace = $_.ScriptStackTrace.toString()
-    $slackMessage = @"
+        }
+        
+        if([string]::IsNullOrEmpty($slackWebhookUrl)) {
+            Write-Output $slackMessage
+        } else {
+            Send-Slack $slackMessage $slackWebhookUrl $slackMentionSubteamId
+        }
+        
+    } catch {
+        $scriptStackTrace = $_.ScriptStackTrace.toString()
+        $slackMessage = @"
 $slackMention
 *An error occurred! (assetTag:$assetTag)*
 -------------------------------
@@ -309,5 +309,3 @@ $WindowsInfoString
 }
 
 }
-
-# main

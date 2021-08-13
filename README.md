@@ -43,6 +43,7 @@ Set-ExecutionPolicy -ExecutionPolicy Bypass -Force -Scope Process
 $VerbosePreference = 'SilentlyContinue'
 [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bOR [Net.SecurityProtocolType]::Tls12
 iwr -useb raw.githubusercontent.com/shigel/setup-win-min/main/setup-win.ps1 -Headers @{"Cache-Control"="no-cache"} | iex
+Setup-Windows
 ```
 
 ### slack通知する場合
@@ -54,6 +55,7 @@ Set-ExecutionPolicy -ExecutionPolicy Bypass -Force -Scope Process
 $VerbosePreference = 'SilentlyContinue'
 [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bOR [Net.SecurityProtocolType]::Tls12
 iwr -useb raw.githubusercontent.com/shigel/setup-win-min/main/setup-win.ps1 -Headers @{"Cache-Control"="no-cache"} | iex
+Setup-Windows
 ```
 
 ### Snipe-ITに登録する場合
@@ -66,4 +68,5 @@ Set-ExecutionPolicy -ExecutionPolicy Bypass -Force -Scope Process
 $VerbosePreference = 'SilentlyContinue'
 [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bOR [Net.SecurityProtocolType]::Tls12
 iwr -useb raw.githubusercontent.com/shigel/setup-win-min/main/setup-win.ps1 -Headers @{"Cache-Control"="no-cache"} | iex
+Setup-Windows
 ```
