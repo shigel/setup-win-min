@@ -148,14 +148,10 @@ function PostHardwareSnipeIt {
 
     $assets1 = Get-SnipeitAsset -serial $serialNumber
     $asset2 = Get-SnipeitAsset -asset_tag $assetTag
-    if ($assets1.length -ne 0) {
-        foreach ($asset in $assets1) {
-            if ($null -eq $asset.deleted_at) {
-                $snipeitMessages.Add("Serial Number '$serialNumber' is Duplicated. $snipeItRootUrl/hardware/" + $asset.id)
-            }
-        }
+    if (($null -ne $assets1) -and ($null -ne $assets1.count)-and ($null -eq $assets1[-1].deleted_at)) {
+        $snipeitMessages.Add("Serial Number '$serialNumber' is Duplicated. $snipeItRootUrl/hardware/" + $assets1[-1].id)
     }
-    if (($asset2.length -ne 0) -and ($null -eq $asset2.deleted_at)) {
+    if (($null -ne $asset2) -and ($null -ne $asset2.count) -and ($null -eq $asset2.deleted_at)) {
         $snipeitMessages.Add("Asset Tag '$assetTag' is Duplicated. $snipeItRootUrl/hardware/" + $asset2.id)
     }
     if ($snipeitMessages.count -eq 0) {
