@@ -164,7 +164,8 @@ function PostHardwareSnipeIt {
 
     return $snipeitMessages
 }
-function main {
+
+function Setup {
     Set-ExecutionPolicy -ExecutionPolicy Bypass -Force -Scope CurrentUser
     # enabled TLS1.2
     [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bOR [Net.SecurityProtocolType]::Tls12
@@ -234,8 +235,10 @@ function main {
     Set-ExecutionPolicy -ExecutionPolicy $ExecutionPolicy -Force -Scope Process
 }
 
+function main {
+
 try {
-    main 
+    Setup 
 
     Write-Output "### Initialize is finished. ###"
     $publicKey = Get-Content ${HOME}\.ssh\id_rsa.pub
@@ -304,3 +307,7 @@ $WindowsInfoString
     # Restore the PowerShell execution policy for a user account.
     Set-ExecutionPolicy -ExecutionPolicy $ExecutionPolicy -Force -Scope Process
 }
+
+}
+
+# main
