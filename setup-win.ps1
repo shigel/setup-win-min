@@ -115,6 +115,57 @@ function GetWindowsInfo {
     return $WindowsInfo
 }
 
+# Registration to Snipe-IT
+Import-Module SnipeitPS
+function PostHardwareSnipeIt2 {
+    param(
+        [Parameter(Mandatory,Position=1)]
+        [string]$snipeItRootUrl,
+
+        [Parameter(Mandatory,Position=2)]
+        [string]$snipeItApiKey,
+
+        [Parameter(Mandatory=$false,Position=3)]
+        [string]$assetName,
+
+        [Parameter(Mandatory,Position=4)]
+        [string]$assetTag,
+
+        [Parameter(Mandatory,Position=5)]
+        [System.Object]$WindowsInfo
+    )
+
+    $serialNumber = $WindowsInfo.SerialNumber
+
+    $modelName = $WindowsInfo.Model
+
+    $manufacturerName = $WindowsInfo.Manufacturer
+    
+    $WindowsInfoString = ($WindowsInfo | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty Definition) -join "`r`n"
+
+    $manufacturerId = $null
+    $manufacturers = Get-SnipeitManufacturer -search $manufacturerName
+    if ($manufacturers.total -eq 0) {
+        $SnipeitManufacturer = New-SnipeitManufacturer -name $manufacturerName
+        $SnipeitManufacturer
+        $manufacturerId = $SnipeitManufacturer.id
+    } else {
+        $manufacturerId = $manufacturers[0].id
+    } 
+
+    $modelId = $null
+    $models = Get-SnipeitModel -search $modelName
+    if ($models.total -eq 0) {
+        $SnipeitModel = New-SnipeitModel -name $modelName -manufacturer_id $manufacturerId -fieldset_id 1 -category_id 1
+        $SnipeitModel
+        $modelId = $SnipeitModel.id
+    } else {
+        $modelId = $models[0].id
+    } 
+
+    $snipeitMessages = PostHardwareSnipeIt $snipeItRootUrl $snipeItApiKey $modelId $assetName $assetTag $serialNumber -notes "$WindowsInfoString"
+    return $snipeitMessages
+}
 
 function PostHardwareSnipeIt {
     param(
@@ -162,7 +213,7 @@ function PostHardwareSnipeIt {
             "Asset Tag '" + $new_asset.asset_tag +"' is created. $snipeItRootUrl/hardware/" + $new_asset.id)
     }
 
-    return $snipeitMessages
+    return ($snipeitMessages -join "`r`n")
 }
 
 function Setup {
@@ -196,8 +247,7 @@ function Setup {
     $OSVersion = [System.Environment]::OSVersion.Version
     Write-Output "Windows OS Version is " $OSVersion.ToString()
     if (($OSVersion.Major -ne 10) -or ($OSVersion.Major -ne 10)) {
-        # Windows 10 Pro
-        # Windows 10 Pro is installed openssh
+        # else
         Write-Output "This program supports Windows 10 Pro and Windows Server 2016."
         exit
     } elseif ($OSVersion.Build -eq 19042) {
@@ -265,7 +315,8 @@ $WindowsInfoString
         if ([string]::IsNullOrEmpty($snipeItRootUrl) -or [string]::IsNullOrEmpty($snipeItApiKey)) {
             # nothing to do
         } else {
-            $snipeitMessages = (PostHardwareSnipeIt $snipeItRootUrl $snipeItApiKey $modelId "$assetName" $assetTag $serialNumber -notes "$WindowsInfoString") -join "`r`n"
+            $snipeitMessages = PostHardwareSnipeIt2 $snipeItRootUrl $snipeItApiKey -assetName "$assetName" -assetTag $assetTag -WindowsInfo $WindowsInfo
+            # $snipeitMessages = (PostHardwareSnipeIt $snipeItRootUrl $snipeItApiKey $modelId "$assetName" $assetTag $serialNumber -notes "$WindowsInfoString") -join "`r`n"
 
             $slackMessage += @"
 ### Snipe-IT Infomation:
