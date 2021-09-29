@@ -118,7 +118,6 @@ function GetWindowsInfo {
 # Registration to Snipe-IT
 Install-Module SnipeitPS -Force
 Import-Module SnipeitPS
-Connect-SnipeitPS -URL "$snipeItRootUrl" -apiKey "$snipeItApiKey"
 
 function PostHardwareSnipeIt2 {
     param(
@@ -318,6 +317,7 @@ $WindowsInfoString
         if ([string]::IsNullOrEmpty($snipeItRootUrl) -or [string]::IsNullOrEmpty($snipeItApiKey)) {
             # nothing to do
         } else {
+            Connect-SnipeitPS -URL "$snipeItRootUrl" -apiKey "$snipeItApiKey"
             $snipeitMessages = PostHardwareSnipeIt2 $snipeItRootUrl $snipeItApiKey -assetName "$assetName" -assetTag $assetTag -WindowsInfo $WindowsInfo
             # $snipeitMessages = (PostHardwareSnipeIt $snipeItRootUrl $snipeItApiKey $modelId "$assetName" $assetTag $serialNumber -notes "$WindowsInfoString") -join "`r`n"
 
