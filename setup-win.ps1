@@ -115,6 +115,11 @@ function GetWindowsInfo {
     return $WindowsInfo
 }
 
+# Registration to Snipe-IT
+Install-Module SnipeitPS -Force
+Import-Module SnipeitPS
+Connect-SnipeitPS -URL "$snipeItRootUrl" -apiKey "$snipeItApiKey"
+
 function PostHardwareSnipeIt2 {
     param(
         [Parameter(Mandatory,Position=1)]
@@ -132,11 +137,6 @@ function PostHardwareSnipeIt2 {
         [Parameter(Mandatory,Position=5)]
         [System.Object]$WindowsInfo
     )
-
-    # Registration to Snipe-IT
-    Install-Module SnipeitPS -Force
-    Import-Module SnipeitPS
-    Connect-SnipeitPS -URL "$snipeItRootUrl" -apiKey "$snipeItApiKey"
 
     $serialNumber = $WindowsInfo.SerialNumber
 
