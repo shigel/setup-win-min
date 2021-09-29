@@ -136,6 +136,7 @@ function PostHardwareSnipeIt2 {
     # Registration to Snipe-IT
     Install-Module SnipeitPS -Force
     Import-Module SnipeitPS
+    Connect-SnipeitPS -URL "$snipeItRootUrl" -apiKey "$snipeItApiKey"
 
     $serialNumber = $WindowsInfo.SerialNumber
 
@@ -146,9 +147,9 @@ function PostHardwareSnipeIt2 {
     $WindowsInfoString = ($WindowsInfo | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty Definition) -join "`r`n"
 
     $manufacturerId = $null
-    $manufacturers = Get-SnipeitManufacturer -search $manufacturerName
+    $manufacturers = Get-SnipeitManufacturer -search "$manufacturerName"
     if ($manufacturers.total -eq 0) {
-        $SnipeitManufacturer = New-SnipeitManufacturer -name $manufacturerName
+        $SnipeitManufacturer = New-SnipeitManufacturer -name "$manufacturerName"
         $SnipeitManufacturer
         $manufacturerId = $SnipeitManufacturer.id
     } else {
@@ -350,15 +351,15 @@ $WindowsInfoString
 ``````
 "@
 
-    if([string]::IsNullOrEmpty($slackWebhookUrl)) {
-        Write-Output $slackMessage
-    } else {
-        Send-Slack $slackMessage $slackWebhookUrl $slackMentionSubteamId
+        if([string]::IsNullOrEmpty($slackWebhookUrl)) {
+            Write-Output $slackMessage
+        } else {
+            Send-Slack $slackMessage $slackWebhookUrl $slackMentionSubteamId
+        }
+    } finally {
+        # ユーザーアカウントのPowerShell実行ポリシーを復元する
+        # Restore the PowerShell execution policy for a user account.
+        Set-ExecutionPolicy -ExecutionPolicy $ExecutionPolicy -Force -Scope Process
     }
-} finally {
-    # ユーザーアカウントのPowerShell実行ポリシーを復元する
-    # Restore the PowerShell execution policy for a user account.
-    Set-ExecutionPolicy -ExecutionPolicy $ExecutionPolicy -Force -Scope Process
-}
 
 }
