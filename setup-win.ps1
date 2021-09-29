@@ -1,9 +1,9 @@
-# ï¿½ï¿½ï¿½İ‚Ìƒï¿½ï¿½[ï¿½Uï¿½[ï¿½Aï¿½Jï¿½Eï¿½ï¿½ï¿½gï¿½ï¿½PowerShellï¿½ï¿½Lï¿½ï¿½ï¿½É‚ï¿½ï¿½Aï¿½_ï¿½Cï¿½Aï¿½ï¿½ï¿½Oï¿½ï¿½ï¿½\ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È‚ï¿½ï¿½æ‚¤ï¿½ÉƒZï¿½Lï¿½ï¿½ï¿½ï¿½ï¿½eï¿½Bï¿½ï¿½ï¿½É‚ß‚ï¿½B
+# Œ»İ‚Ìƒ†[ƒU[ƒAƒJƒEƒ“ƒg‚ÅPowerShell‚ğ—LŒø‚É‚µAƒ_ƒCƒAƒƒO‚ª•\¦‚³‚ê‚È‚¢‚æ‚¤‚ÉƒZƒLƒ…ƒŠƒeƒB‚ğŠÉ‚ß‚éB
 # Enable PowerShell for the current user account and loosen the security so that the dialog is not displayed.
 $ExecutionPolicy = Get-ExecutionPolicy -Scope Process
 Set-ExecutionPolicy -ExecutionPolicy Bypass -Force -Scope Process
 
-# Invoke-WebRequestï¿½Ì‘ï¿½ï¿½xï¿½ï¿½ï¿½P
+# Invoke-WebRequest‚Ì‘¬“x‰ü‘P
 $ProgressPreference = 'SilentlyContinue'
 
 $WindowsInfo = $null
@@ -27,15 +27,15 @@ function Send-Slack{
         $mentionSubteamId = "<!subteam^$mentionSubteamId>"
     }
 
-    # ï¿½ï¿½ï¿½{ï¿½ï¿½Gï¿½ï¿½ï¿½Rï¿½[ï¿½hï¿½p
+    # “ú–{ŒêƒGƒ“ƒR[ƒh—p
     $encode = [System.Text.Encoding]::GetEncoding('ISO-8859-1')
     $utf8Bytes = [System.Text.Encoding]::UTF8.GetBytes($mentionSubteamId + $slackMessage)
 
-    # Jsonï¿½É•ÏŠï¿½ï¿½ï¿½ï¿½ï¿½
+    # Json‚É•ÏŠ·‚·‚é
     $payload = @{ 
         text = $encode.GetString($utf8Bytes);
 
-        # Slackï¿½ï¿½WebHookï¿½ï¿½BOTï¿½ï¿½ï¿½ÆƒAï¿½Cï¿½Rï¿½ï¿½ï¿½ï¿½ï¿½wï¿½è‚µï¿½Ä‚ï¿½ï¿½ï¿½ê‡ï¿½Í‰ï¿½ï¿½Lï¿½Xï¿½Nï¿½ï¿½ï¿½vï¿½gï¿½Í•sï¿½v
+        # Slack‚ÌWebHook‚ÅBOT–¼‚ÆƒAƒCƒRƒ“‚ğw’è‚µ‚Ä‚¢‚éê‡‚Í‰º‹LƒXƒNƒŠƒvƒg‚Í•s—v
         #username = "PowerShell BOT";
         #icon_url = "https://xxxx/xxx.png";
     }
@@ -43,13 +43,13 @@ function Send-Slack{
     if([string]::IsNullOrEmpty($slackWebhookUrl)) {
         Write-Output $slackMessage
     } else {
-        # Slackï¿½ï¿½REST APIï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+        # Slack‚ÌREST API‚ğ‚½‚½‚­
         Invoke-RestMethod -Uri $webhookUrl -Method Post -Body (ConvertTo-Json $payload)
     }
 }
 
 #####################################################################
-# ï¿½Vï¿½Xï¿½eï¿½ï¿½ï¿½ï¿½ï¿½
+# ƒVƒXƒeƒ€î•ñ
 #####################################################################
 function GetWindowsInfo {
     $WindowsInfo = New-Object PSObject `
@@ -60,48 +60,48 @@ function GetWindowsInfo {
     $Win32_ComputerSystem = Get-WmiObject Win32_ComputerSystem
     $Win32_OperatingSystem = Get-WmiObject Win32_OperatingSystem
 
-    # ï¿½zï¿½Xï¿½gï¿½ï¿½
+    # ƒzƒXƒg–¼
     $WindowsInfo.HostName = hostname
 
-    # ï¿½Oï¿½ï¿½ï¿½[ï¿½oï¿½ï¿½IPï¿½Aï¿½hï¿½ï¿½ï¿½X
+    # ƒOƒ[ƒoƒ‹IPƒAƒhƒŒƒX
     $json = (Invoke-WebRequest -Uri "ipinfo.io" -UseBasicParsing).Content
     $WindowsInfo.GlobalIP = (ConvertFrom-Json $json).ip
 
-    # ï¿½ï¿½ï¿½[ï¿½Uï¿½ï¿½
+    # ƒ†[ƒU–¼
     $WindowsInfo.UserName = $env:UserName
 
-    # ï¿½ï¿½ï¿½[ï¿½Jï¿½[ï¿½ï¿½
+    # ƒ[ƒJ[–¼
     $WindowsInfo.Manufacturer = $Win32_BIOS.Manufacturer
 
-    # ï¿½ï¿½ï¿½fï¿½ï¿½ï¿½ï¿½
+    # ƒ‚ƒfƒ‹–¼
     $WindowsInfo.Model = $Win32_ComputerSystem.Model
 
-    # ï¿½Vï¿½ï¿½ï¿½Aï¿½ï¿½ï¿½Ôï¿½
+    # ƒVƒŠƒAƒ‹”Ô†
     $WindowsInfo.SerialNumber = $Win32_BIOS.SerialNumber
 
-    # CPU ï¿½ï¿½
+    # CPU –¼
     $WindowsInfo.CPUName = @($Win32_Processor.Name)[0]
 
-    # ï¿½ï¿½ï¿½ï¿½ï¿½Rï¿½Aï¿½ï¿½
+    # •¨—ƒRƒA”
     $PhysicalCores = 0
     $Win32_Processor.NumberOfCores | % { $PhysicalCores += $_}
     $WindowsInfo.PhysicalCores = $PhysicalCores
     
-    # ï¿½\ï¿½Pï¿½bï¿½gï¿½ï¿½
+    # ƒ\ƒPƒbƒg”
     $WindowsInfo.Sockets = $Win32_ComputerSystem.NumberOfProcessors
     
-    # ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½[ï¿½Tï¿½Cï¿½Y(GB)
+    # ƒƒ‚ƒŠ[ƒTƒCƒY(GB)
     $Total = 0
     Get-WmiObject -Class Win32_PhysicalMemory | % {$Total += $_.Capacity}
     $WindowsInfo.MemorySize = [int]($Total/1GB)
     
-    # ï¿½fï¿½Bï¿½Xï¿½Nï¿½ï¿½ï¿½
+    # ƒfƒBƒXƒNî•ñ
     [array]$DiskDrives = Get-WmiObject Win32_DiskDrive | ? {$_.Caption -notmatch "Msft"} | sort Index
     $DiskInfos = @()
     foreach( $DiskDrive in $DiskDrives ){
         $DiskInfo = New-Object PSObject | Select-Object Index, DiskSize
-        $DiskInfo.Index = $DiskDrive.Index              # ï¿½fï¿½Bï¿½Xï¿½Nï¿½Ôï¿½
-        $DiskInfo.DiskSize = [int]($DiskDrive.Size/1GB) # ï¿½fï¿½Bï¿½Xï¿½Nï¿½Tï¿½Cï¿½Y(GB)
+        $DiskInfo.Index = $DiskDrive.Index              # ƒfƒBƒXƒN”Ô†
+        $DiskInfo.DiskSize = [int]($DiskDrive.Size/1GB) # ƒfƒBƒXƒNƒTƒCƒY(GB)
         $DiskInfos += $DiskInfo
     }
     $WindowsInfo.DiskInfos = $DiskInfos
@@ -261,7 +261,7 @@ function Setup {
     }
 
     # ssh key generates
-    # Write-Verbose: ï¿½ï¿½ï¿½ï¿½ï¿½ì¬ï¿½ï¿½ï¿½Ü‚ï¿½ï¿½Bï¿½ã‘ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ê‡ï¿½ï¿½(y)ï¿½Aï¿½ï¿½ï¿½È‚ï¿½ï¿½ê‡ï¿½ï¿½(n)ï¿½ï¿½ï¿½ï¿½Í‚ï¿½ï¿½ï¿½Enterï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½B
+    # Write-Verbose: Œ®‚ğì¬‚µ‚Ü‚·Bã‘‚«‚·‚éê‡‚Í(y)A‚µ‚È‚¢ê‡‚Í(n)‚ğ“ü—Í‚µ‚ÄEnter‚ğ‰Ÿ‚µ‚Ä‚­‚¾‚³‚¢B
     Write-Output "making ssh key. Overwrite(y), Not Overwrite(n) and input Enter key."
     if (Test-Path ${HOME}\.ssh\id_rsa) {
         Write-Output "The ssh key already exists."
@@ -283,7 +283,7 @@ function Setup {
 
     # Restore the PowerShell execution policy for a user account.
     # Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Force -Scope CurrentUser
-    # Write-Output "ExecutionPolicyï¿½ï¿½${ExecutionPolicy}ï¿½ï¿½ï¿½ï¿½RemoteSignedï¿½É•ÏXï¿½ï¿½ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½ï¿½B"
+    # Write-Output "ExecutionPolicy‚Í${ExecutionPolicy}‚©‚çRemoteSigned‚É•ÏX‚³‚ê‚Ü‚µ‚½B"
     Set-ExecutionPolicy -ExecutionPolicy $ExecutionPolicy -Force -Scope Process
 }
 
@@ -356,7 +356,7 @@ $WindowsInfoString
         Send-Slack $slackMessage $slackWebhookUrl $slackMentionSubteamId
     }
 } finally {
-    # ï¿½ï¿½ï¿½[ï¿½Uï¿½[ï¿½Aï¿½Jï¿½Eï¿½ï¿½ï¿½gï¿½ï¿½PowerShellï¿½ï¿½ï¿½sï¿½|ï¿½ï¿½ï¿½Vï¿½[ï¿½ğ•œŒï¿½ï¿½ï¿½ï¿½ï¿½
+    # ƒ†[ƒU[ƒAƒJƒEƒ“ƒg‚ÌPowerShellÀsƒ|ƒŠƒV[‚ğ•œŒ³‚·‚é
     # Restore the PowerShell execution policy for a user account.
     Set-ExecutionPolicy -ExecutionPolicy $ExecutionPolicy -Force -Scope Process
 }
