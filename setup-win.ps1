@@ -195,7 +195,8 @@ function PostHardwareSnipeIt {
 
     $statusId = 2     # Ready to Deploy
     # To use each session:
-    Set-SnipeitInfo -URL $snipeItRootUrl -apiKey $snipeItApiKey
+    # Deprecated Set-SnipeitInfo
+    # Set-SnipeitInfo -URL $snipeItRootUrl -apiKey $snipeItApiKey
 
     $snipeitMessages = New-Object System.Collections.ArrayList
 
