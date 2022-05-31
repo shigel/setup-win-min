@@ -1,9 +1,9 @@
-# Œ»İ‚Ìƒ†[ƒU[ƒAƒJƒEƒ“ƒg‚ÅPowerShell‚ğ—LŒø‚É‚µAƒ_ƒCƒAƒƒO‚ª•\¦‚³‚ê‚È‚¢‚æ‚¤‚ÉƒZƒLƒ…ƒŠƒeƒB‚ğŠÉ‚ß‚éB
+# ç¾åœ¨ã®ãƒ¦ãƒ¼ã‚¶ãƒ¼ã‚¢ã‚«ã‚¦ãƒ³ãƒˆã§PowerShellã‚’æœ‰åŠ¹ã«ã—ã€ãƒ€ã‚¤ã‚¢ãƒ­ã‚°ãŒè¡¨ç¤ºã•ã‚Œãªã„ã‚ˆã†ã«ã‚»ã‚­ãƒ¥ãƒªãƒ†ã‚£ã‚’ç·©ã‚ã‚‹ã€‚
 # Enable PowerShell for the current user account and loosen the security so that the dialog is not displayed.
 $ExecutionPolicy = Get-ExecutionPolicy -Scope Process
 Set-ExecutionPolicy -ExecutionPolicy Bypass -Force -Scope Process
 
-# Invoke-WebRequest‚Ì‘¬“x‰ü‘P
+# Invoke-WebRequestã®é€Ÿåº¦æ”¹å–„
 $ProgressPreference = 'SilentlyContinue'
 
 $WindowsInfo = $null
@@ -27,15 +27,15 @@ function Send-Slack{
         $mentionSubteamId = "<!subteam^$mentionSubteamId>"
     }
 
-    # “ú–{ŒêƒGƒ“ƒR[ƒh—p
+    # æ—¥æœ¬èªã‚¨ãƒ³ã‚³ãƒ¼ãƒ‰ç”¨
     $encode = [System.Text.Encoding]::GetEncoding('ISO-8859-1')
     $utf8Bytes = [System.Text.Encoding]::UTF8.GetBytes($mentionSubteamId + $slackMessage)
 
-    # Json‚É•ÏŠ·‚·‚é
+    # Jsonã«å¤‰æ›ã™ã‚‹
     $payload = @{ 
         text = $encode.GetString($utf8Bytes);
 
-        # Slack‚ÌWebHook‚ÅBOT–¼‚ÆƒAƒCƒRƒ“‚ğw’è‚µ‚Ä‚¢‚éê‡‚Í‰º‹LƒXƒNƒŠƒvƒg‚Í•s—v
+        # Slackã®WebHookã§BOTåã¨ã‚¢ã‚¤ã‚³ãƒ³ã‚’æŒ‡å®šã—ã¦ã„ã‚‹å ´åˆã¯ä¸‹è¨˜ã‚¹ã‚¯ãƒªãƒ—ãƒˆã¯ä¸è¦
         #username = "PowerShell BOT";
         #icon_url = "https://xxxx/xxx.png";
     }
@@ -43,13 +43,13 @@ function Send-Slack{
     if([string]::IsNullOrEmpty($slackWebhookUrl)) {
         Write-Output $slackMessage
     } else {
-        # Slack‚ÌREST API‚ğ‚½‚½‚­
+        # Slackã®REST APIã‚’ãŸãŸã
         Invoke-RestMethod -Uri $webhookUrl -Method Post -Body (ConvertTo-Json $payload)
     }
 }
 
 #####################################################################
-# ƒVƒXƒeƒ€î•ñ
+# ã‚·ã‚¹ãƒ†ãƒ æƒ…å ±
 #####################################################################
 function GetWindowsInfo {
     $WindowsInfo = New-Object PSObject `
@@ -60,48 +60,48 @@ function GetWindowsInfo {
     $Win32_ComputerSystem = Get-WmiObject Win32_ComputerSystem
     $Win32_OperatingSystem = Get-WmiObject Win32_OperatingSystem
 
-    # ƒzƒXƒg–¼
+    # ãƒ›ã‚¹ãƒˆå
     $WindowsInfo.HostName = hostname
 
-    # ƒOƒ[ƒoƒ‹IPƒAƒhƒŒƒX
+    # ã‚°ãƒ­ãƒ¼ãƒãƒ«IPã‚¢ãƒ‰ãƒ¬ã‚¹
     $json = (Invoke-WebRequest -Uri "ipinfo.io" -UseBasicParsing).Content
     $WindowsInfo.GlobalIP = (ConvertFrom-Json $json).ip
 
-    # ƒ†[ƒU–¼
+    # ãƒ¦ãƒ¼ã‚¶å
     $WindowsInfo.UserName = $env:UserName
 
-    # ƒ[ƒJ[–¼
+    # ãƒ¡ãƒ¼ã‚«ãƒ¼å
     $WindowsInfo.Manufacturer = $Win32_BIOS.Manufacturer
 
-    # ƒ‚ƒfƒ‹–¼
+    # ãƒ¢ãƒ‡ãƒ«å
     $WindowsInfo.Model = $Win32_ComputerSystem.Model
 
-    # ƒVƒŠƒAƒ‹”Ô†
+    # ã‚·ãƒªã‚¢ãƒ«ç•ªå·
     $WindowsInfo.SerialNumber = $Win32_BIOS.SerialNumber
 
-    # CPU –¼
+    # CPU å
     $WindowsInfo.CPUName = @($Win32_Processor.Name)[0]
 
-    # •¨—ƒRƒA”
+    # ç‰©ç†ã‚³ã‚¢æ•°
     $PhysicalCores = 0
     $Win32_Processor.NumberOfCores | % { $PhysicalCores += $_}
     $WindowsInfo.PhysicalCores = $PhysicalCores
     
-    # ƒ\ƒPƒbƒg”
+    # ã‚½ã‚±ãƒƒãƒˆæ•°
     $WindowsInfo.Sockets = $Win32_ComputerSystem.NumberOfProcessors
     
-    # ƒƒ‚ƒŠ[ƒTƒCƒY(GB)
+    # ãƒ¡ãƒ¢ãƒªãƒ¼ã‚µã‚¤ã‚º(GB)
     $Total = 0
     Get-WmiObject -Class Win32_PhysicalMemory | % {$Total += $_.Capacity}
     $WindowsInfo.MemorySize = [int]($Total/1GB)
     
-    # ƒfƒBƒXƒNî•ñ
+    # ãƒ‡ã‚£ã‚¹ã‚¯æƒ…å ±
     [array]$DiskDrives = Get-WmiObject Win32_DiskDrive | ? {$_.Caption -notmatch "Msft"} | sort Index
     $DiskInfos = @()
     foreach( $DiskDrive in $DiskDrives ){
         $DiskInfo = New-Object PSObject | Select-Object Index, DiskSize
-        $DiskInfo.Index = $DiskDrive.Index              # ƒfƒBƒXƒN”Ô†
-        $DiskInfo.DiskSize = [int]($DiskDrive.Size/1GB) # ƒfƒBƒXƒNƒTƒCƒY(GB)
+        $DiskInfo.Index = $DiskDrive.Index              # ãƒ‡ã‚£ã‚¹ã‚¯ç•ªå·
+        $DiskInfo.DiskSize = [int]($DiskDrive.Size/1GB) # ãƒ‡ã‚£ã‚¹ã‚¯ã‚µã‚¤ã‚º(GB)
         $DiskInfos += $DiskInfo
     }
     $WindowsInfo.DiskInfos = $DiskInfos
@@ -234,7 +234,7 @@ function Setup {
     # Install Scoop
     #Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh')
     if (!(Test-Path scoop)) {
-        iwr -useb get.scoop.sh | iex
+        iex "& {$(irm get.scoop.sh)} -RunAsAdmin"
     }
 
     # Scoop can utilize aria2 to use multi-connection downloads. Simply install aria2 through Scoop and it will be used for all downloads afterward.
@@ -262,7 +262,7 @@ function Setup {
     }
 
     # ssh key generates
-    # Write-Verbose: Œ®‚ğì¬‚µ‚Ü‚·Bã‘‚«‚·‚éê‡‚Í(y)A‚µ‚È‚¢ê‡‚Í(n)‚ğ“ü—Í‚µ‚ÄEnter‚ğ‰Ÿ‚µ‚Ä‚­‚¾‚³‚¢B
+    # Write-Verbose: éµã‚’ä½œæˆã—ã¾ã™ã€‚ä¸Šæ›¸ãã™ã‚‹å ´åˆã¯(y)ã€ã—ãªã„å ´åˆã¯(n)ã‚’å…¥åŠ›ã—ã¦Enterã‚’æŠ¼ã—ã¦ãã ã•ã„ã€‚
     Write-Output "making ssh key. Overwrite(y), Not Overwrite(n) and input Enter key."
     if (Test-Path ${HOME}\.ssh\id_rsa) {
         Write-Output "The ssh key already exists."
@@ -284,7 +284,7 @@ function Setup {
 
     # Restore the PowerShell execution policy for a user account.
     # Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Force -Scope CurrentUser
-    # Write-Output "ExecutionPolicy‚Í${ExecutionPolicy}‚©‚çRemoteSigned‚É•ÏX‚³‚ê‚Ü‚µ‚½B"
+    # Write-Output "ExecutionPolicyã¯${ExecutionPolicy}ã‹ã‚‰RemoteSignedã«å¤‰æ›´ã•ã‚Œã¾ã—ãŸã€‚"
     Set-ExecutionPolicy -ExecutionPolicy $ExecutionPolicy -Force -Scope Process
 }
 
@@ -358,7 +358,7 @@ $WindowsInfoString
             Send-Slack $slackMessage $slackWebhookUrl $slackMentionSubteamId
         }
     } finally {
-        # ƒ†[ƒU[ƒAƒJƒEƒ“ƒg‚ÌPowerShellÀsƒ|ƒŠƒV[‚ğ•œŒ³‚·‚é
+        # ãƒ¦ãƒ¼ã‚¶ãƒ¼ã‚¢ã‚«ã‚¦ãƒ³ãƒˆã®PowerShellå®Ÿè¡Œãƒãƒªã‚·ãƒ¼ã‚’å¾©å…ƒã™ã‚‹
         # Restore the PowerShell execution policy for a user account.
         Set-ExecutionPolicy -ExecutionPolicy $ExecutionPolicy -Force -Scope Process
     }
